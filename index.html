@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>SonicaX · эмбиент генератор</title>
+    <!-- шрифты: Inter и Lexend Deca -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500&family=Lexend+Deca:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Tone.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <!-- Библиотека для FLAC экспорта -->
+    <script src="https://cdn.jsdelivr.net/npm/libflac.js@1.0.0/dist/libflac.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1 class="site-title">SonicaX</h1>
+
+    <div class="ambient-card">
+        <div class="card-content">
+            <!-- ВЕРСИЯ АЛГОРИТМА -->
+            <div class="control-section">
+                <div class="section-label">версия алгоритма</div>
+                <div class="sliding-toggle-group version-group">
+                    <button class="sliding-toggle-btn version-btn" data-version="v1">V1</button>
+                    <button class="sliding-toggle-btn version-btn" data-version="v2">V2</button>
+                    <button class="sliding-toggle-btn version-btn active-version" data-version="v3">V3</button>
+                    <div class="sliding-indicator version-indicator"></div>
+                </div>
+            </div>
+
+            <!-- ВЫБОР НАСТРОЕНИЯ -->
+            <div class="control-section">
+                <div class="section-label">настроение</div>
+                <div class="sliding-toggle-group mood-group">
+                    <button class="sliding-toggle-btn mood-btn active-mood" data-mood="cosmic">космический</button>
+                    <button class="sliding-toggle-btn mood-btn" data-mood="thoughtful">задумчивый</button>
+                    <button class="sliding-toggle-btn mood-btn" data-mood="mysterious">загадочный</button>
+                    <button class="sliding-toggle-btn mood-btn" data-mood="dark">мрачный</button>
+                    <div class="sliding-indicator mood-indicator"></div>
+                </div>
+            </div>
+
+            <!-- ДЛИТЕЛЬНОСТЬ -->
+            <div class="control-section">
+                <div class="section-label">длительность (секунд)</div>
+                <div class="duration-slider-block">
+                    <div class="slider-row">
+                        <span class="slider-label">10</span>
+                        <input type="range" id="durationSlider" min="10" max="120" value="60" step="1">
+                        <span class="slider-label">120</span>
+                    </div>
+                    <div class="duration-value" id="durationDisplay">60 сек</div>
+                </div>
+            </div>
+
+            <!-- ГРОМКОСТЬ -->
+            <div class="control-section">
+                <div class="section-label">громкость (%)</div>
+                <div class="duration-slider-block">
+                    <div class="slider-row">
+                        <span class="slider-label">0</span>
+                        <input type="range" id="volumeSlider" min="0" max="150" value="100" step="1">
+                        <span class="slider-label">150</span>
+                    </div>
+                    <div class="duration-value" id="volumeDisplay">100%</div>
+                </div>
+            </div>
+
+            <!-- ОБЪЁМ ЗВУКА -->
+            <div class="control-section">
+                <div class="section-label">объём звука</div>
+                <div class="duration-slider-block">
+                    <div class="slider-row">
+                        <span class="slider-label">камера</span>
+                        <input type="range" id="spaceSlider" min="0" max="100" value="30" step="1">
+                        <span class="slider-label">зал</span>
+                    </div>
+                    <div class="duration-value" id="spaceDisplay">комната</div>
+                </div>
+            </div>
+
+            <!-- БАСЫ -->
+            <div class="control-section">
+                <div class="section-label">басы</div>
+                <div class="sliding-toggle-group bass-group">
+                    <button class="sliding-toggle-btn bass-btn" data-bass="min">минимум</button>
+                    <button class="sliding-toggle-btn bass-btn active-bass" data-bass="std">стандартно</button>
+                    <button class="sliding-toggle-btn bass-btn" data-bass="max">больше</button>
+                    <button class="sliding-toggle-btn bass-btn" data-bass="solo">соло</button>
+                    <div class="sliding-indicator bass-indicator"></div>
+                </div>
+            </div>
+
+            <!-- РЕЖИМ -->
+            <div class="control-section">
+                <div class="section-label">режим</div>
+                <div class="sliding-toggle-group mode-group">
+                    <button class="sliding-toggle-btn mode-btn" data-mode="simple">простой</button>
+                    <button class="sliding-toggle-btn mode-btn active-mode" data-mode="advanced">продвинутый</button>
+                    <div class="sliding-indicator mode-indicator"></div>
+                </div>
+            </div>
+
+            <!-- КНОПКИ GENERATE И CLEAR -->
+            <div class="button-row">
+                <button class="generate-btn" id="generateBtn">Generate</button>
+                <button class="clear-btn" id="clearBtn">Clear</button>
+            </div>
+            <div id="starfield" class="starfield"></div>
+
+            <!-- ЭКСПОРТ -->
+            <div class="export-area">
+                <button class="export-btn" id="exportMp3" disabled>MP3</button>
+                <button class="export-btn" id="exportWav" disabled>WAV</button>
+                <button class="export-btn" id="exportFlac" disabled>FLAC</button>
+                <span class="status-msg" id="statusMessage">готов</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- КОНТЕЙНЕР ДЛЯ УВЕДОМЛЕНИЙ -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

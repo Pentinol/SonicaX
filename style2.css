@@ -1,0 +1,607 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: #000000;
+    font-family: 'Inter', sans-serif;
+    color: #ffffff;
+    line-height: 1.5;
+    overflow-x: hidden;
+}
+
+/* ========== ШАПКА ========== */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    padding: 20px 0;
+    transition: all 0.3s ease;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+}
+
+.header.scrolled {
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 12px 0;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.logo {
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.logo:hover {
+    text-shadow: 0 0 20px rgba(255,255,255,0.5);
+    transform: scale(1.05);
+}
+
+.nav-menu {
+    display: flex;
+    gap: 40px;
+}
+
+.nav-link {
+    color: #aaaaaa;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    position: relative;
+    padding: 5px 0;
+    transition: all 0.3s ease;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: linear-gradient(90deg, #fff, #aaa, #fff);
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+.nav-link:hover::before {
+    width: 100%;
+}
+
+.nav-link.active-nav {
+    color: #ffffff;
+}
+
+.nav-link.active-nav::before {
+    width: 100%;
+    background: linear-gradient(90deg, #fff, #ff0066, #fff);
+}
+
+/* ========== ФОН СО ЗВЕЗДАМИ ========== */
+.stars-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    animation: starFadeIn 0.5s ease forwards;
+}
+
+@keyframes starFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0);
+    }
+    to {
+        opacity: var(--opacity);
+        transform: scale(1);
+    }
+}
+
+/* ========== СЕКЦИИ ========== */
+.section {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 30px;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+}
+
+.section-title {
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 3rem;
+    font-weight: 300;
+    margin-bottom: 60px;
+    position: relative;
+    display: inline-block;
+}
+
+/* ========== HOME СЕКЦИЯ ========== */
+.home-section {
+    min-height: 85vh;
+    padding-top: 80px;
+}
+
+.home-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+}
+
+.home-content {
+    text-align: center;
+    max-width: 800px;
+}
+
+.home-title {
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 5rem;
+    font-weight: 300;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    animation: fadeInUp 1s ease;
+}
+
+.home-subtitle {
+    font-size: 1.2rem;
+    color: #aaaaaa;
+    margin-bottom: 40px;
+    animation: fadeInUp 1s ease 0.2s both;
+}
+
+.home-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    animation: fadeInUp 1s ease 0.4s both;
+}
+
+/* ========== КНОПКИ ========== */
+.btn {
+    padding: 14px 32px;
+    border-radius: 40px;
+    font-size: 1rem;
+    font-weight: 400;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+    border: none;
+    cursor: pointer;
+    background: white;
+    color: black;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 44px;
+    padding: 4px;
+    background-size: 200% 100%;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: -1;
+    animation: gradient-flow 4s linear infinite;
+}
+
+.btn-rainbow::before {
+    background: linear-gradient(90deg, #ff0066, #ff3300, #ffcc00, #00ff99, #0066ff, #9933ff, #ff00cc, #ff0066);
+}
+
+.btn-gold::before {
+    background: linear-gradient(90deg, #ffd700, #ffb347, #ffd700, #ffb347, #ffd700);
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(255,255,255,0.1);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+@keyframes gradient-flow {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 200% 0%; }
+}
+
+/* ========== О ПРОЕКТЕ ========== */
+.about-section {
+    background: linear-gradient(180deg, #000000 0%, #0a0a0a 100%);
+}
+
+.about-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.about-text {
+    font-size: 1.1rem;
+    color: #cccccc;
+}
+
+.about-text p {
+    margin-bottom: 20px;
+    line-height: 1.8;
+}
+
+/* ========== АЛГОРИТМ ========== */
+.algorithm-section {
+    background: linear-gradient(0deg, #000000 0%, #0a0a0a 100%);
+}
+
+.algorithm-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.algorithm-card {
+    border-radius: 30px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.algorithm-card-inner {
+    background: rgba(20, 20, 20, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 40px 30px;
+    border-radius: 30px;
+    height: 100%;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.algorithm-card:hover .algorithm-card-inner {
+    transform: translateY(-10px);
+    background: rgba(30, 30, 30, 0.9);
+    border-color: rgba(255,255,255,0.1);
+}
+
+.algorithm-title {
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 300;
+    margin-bottom: 20px;
+}
+
+.algorithm-description {
+    color: #aaaaaa;
+    margin-bottom: 25px;
+    line-height: 1.7;
+    font-size: 0.95rem;
+}
+
+.algorithm-features {
+    list-style: none;
+}
+
+.algorithm-features li {
+    color: #cccccc;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    position: relative;
+    padding-left: 20px;
+}
+
+.algorithm-features li::before {
+    content: '·';
+    position: absolute;
+    left: 0;
+    color: #fff;
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+/* ========== ПОДПИСКА ========== */
+.subscription-section {
+    background: #000000;
+    min-height: 80vh;
+    padding: 80px 0;
+}
+
+.subscription-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.subscription-card {
+    max-width: 500px;
+    width: 100%;
+    background: rgba(20, 20, 20, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 40px;
+    padding: 50px 50px 60px 50px;
+    text-align: center;
+    position: relative;
+    border: 1px solid rgba(255,215,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.subscription-card:hover {
+    transform: translateY(-10px);
+    border-color: rgba(255,215,0,0.5);
+    box-shadow: 0 30px 50px rgba(255,215,0,0.1);
+}
+
+.subscription-badge {
+    position: absolute;
+    top: -15px;
+    right: 30px;
+    background: linear-gradient(135deg, #ffd700, #ffb347);
+    color: black;
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    box-shadow: 0 5px 15px rgba(255,215,0,0.3);
+}
+
+.subscription-title {
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 300;
+    margin-bottom: 10px;
+}
+
+.subscription-description {
+    color: #ffd700;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+.subscription-price {
+    font-size: 2rem;
+    margin-bottom: 30px;
+}
+
+.old-price {
+    color: #888;
+    text-decoration: line-through;
+    font-size: 1.5rem;
+    margin-right: 10px;
+}
+
+.subscription-features {
+    list-style: none;
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+.subscription-features li {
+    color: #cccccc;
+    margin-bottom: 15px;
+    padding-left: 30px;
+    position: relative;
+}
+
+.subscription-features li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #ffd700;
+    font-weight: bold;
+}
+
+.subscription-btn-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    transition: all 0.3s ease;
+}
+
+.subscription-btn {
+    width: 100%;
+    text-align: center;
+    background: white;
+    color: black;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0;
+}
+
+.subscription-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(255,215,0,0.2);
+}
+
+.subscription-email-hint {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 0 20px;
+    color: #ffd700;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    text-align: center;
+    border: 1px solid rgba(255,215,0,0.3);
+    pointer-events: none;
+}
+
+.subscription-btn-wrapper:hover .subscription-email-hint {
+    max-height: 100px;
+    opacity: 1;
+    padding: 15px 20px;
+}
+
+/* ========== ФУТЕР ========== */
+.footer {
+    background: #0a0a0a;
+    padding: 40px 0;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-logo {
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: #888;
+    transition: all 0.3s ease;
+}
+
+.footer-logo:hover {
+    color: #fff;
+}
+
+.footer-telegram {
+    color: #888;
+    font-size: 2rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+}
+
+.footer-telegram:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+    transform: rotate(360deg);
+}
+
+/* ========== АНИМАЦИИ ========== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes twinkle {
+    0%, 100% {
+        opacity: var(--opacity);
+    }
+    50% {
+        opacity: calc(var(--opacity) * 0.5);
+    }
+}
+
+/* ========== АДАПТАЦИЯ ========== */
+@media (max-width: 1024px) {
+    .algorithm-cards {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    
+    .nav-menu {
+        display: none;
+    }
+    
+    .home-title {
+        font-size: 4rem;
+    }
+    
+    .home-section {
+        min-height: 70vh;
+    }
+}
+
+@media (max-width: 768px) {
+    .home-title {
+        font-size: 3.5rem;
+    }
+    
+    .section-title {
+        font-size: 2.5rem;
+    }
+    
+    .subscription-card {
+        padding: 30px 20px 50px 20px;
+    }
+    
+    .subscription-email-hint {
+        font-size: 0.8rem;
+    }
+    
+    .subscription-btn-wrapper:hover .subscription-email-hint {
+        padding: 12px 15px;
+    }
+    
+    .home-section {
+        min-height: 60vh;
+    }
+}
