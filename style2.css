@@ -604,4 +604,449 @@ body {
     .home-section {
         min-height: 60vh;
     }
+
+}
+
+/* ========== УЛУЧШЕННАЯ МОБИЛЬНАЯ АДАПТАЦИЯ ========== */
+
+/* Для планшетов и небольших ноутбуков */
+@media (max-width: 1024px) {
+    .home-container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        padding: 0 20px;
+    }
+    
+    .home-content {
+        order: 2;
+        text-align: center;
+    }
+    
+    .home-image-wrapper {
+        order: 1;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .home-buttons {
+        justify-content: center;
+    }
+    
+    .home-subtitle {
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .algorithm-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    .about-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .about-stats {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .stat-item {
+        min-width: 200px;
+        flex: 1;
+    }
+}
+
+/* Для мобильных устройств */
+@media (max-width: 768px) {
+    body {
+        padding: 0;
+    }
+    
+    /* Шапка */
+    .header {
+        padding: 15px 0;
+    }
+    
+    .header.scrolled {
+        padding: 10px 0;
+    }
+    
+    .header-container {
+        padding: 0 20px;
+    }
+    
+    .logo {
+        font-size: 1.5rem;
+    }
+    
+    .nav-menu {
+        display: none; /* Скрываем меню на мобилках */
+    }
+    
+    /* Секции */
+    .section {
+        min-height: auto;
+        padding: 80px 0 60px;
+    }
+    
+    .container {
+        padding: 0 20px;
+    }
+    
+    .section-title {
+        font-size: 2.2rem;
+        margin-bottom: 40px;
+    }
+    
+    /* Главная секция */
+    .home-section {
+        padding-top: 100px;
+    }
+    
+    .home-title {
+        font-size: 3.5rem;
+    }
+    
+    .home-subtitle {
+        font-size: 1rem;
+        max-width: 100%;
+    }
+    
+    .home-buttons {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    .btn {
+        padding: 14px 20px;
+        font-size: 0.95rem;
+        text-align: center;
+        width: 100%;
+    }
+    
+    .btn::before {
+        inset: -3px;
+        border-radius: 43px;
+    }
+    
+    .home-image-container {
+        transform: perspective(1000px) rotateY(0deg) rotateX(0deg);
+    }
+    
+    .home-image-container:hover {
+        transform: perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1.02);
+    }
+    
+    /* Секция О проекте */
+    .about-text {
+        font-size: 1rem;
+    }
+    
+    .about-text p {
+        margin-bottom: 15px;
+    }
+    
+    .about-stats {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .stat-item {
+        width: 100%;
+        padding: 25px;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+    }
+    
+    /* Секция Алгоритм */
+    .algorithm-cards {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .algorithm-card {
+        max-width: 450px;
+        margin: 0 auto;
+        width: 100%;
+    }
+    
+    .algorithm-card-inner {
+        padding: 30px 25px;
+    }
+    
+    .algorithm-title {
+        font-size: 1.6rem;
+    }
+    
+    .algorithm-description {
+        font-size: 0.9rem;
+    }
+    
+    .algorithm-features li {
+        font-size: 0.85rem;
+    }
+    
+    /* Секция Подписка */
+    .subscription-section {
+        min-height: auto;
+        padding: 60px 0;
+    }
+    
+    .subscription-card {
+        padding: 40px 25px 70px 25px;
+        max-width: 450px;
+        margin: 0 auto;
+    }
+    
+    .subscription-title {
+        font-size: 2rem;
+    }
+    
+    .subscription-description {
+        font-size: 0.9rem;
+    }
+    
+    .subscription-price {
+        font-size: 1.8rem;
+    }
+    
+    .old-price {
+        font-size: 1.3rem;
+    }
+    
+    .subscription-features li {
+        font-size: 0.9rem;
+        margin-bottom: 12px;
+    }
+    
+    .subscription-badge {
+        padding: 6px 15px;
+        font-size: 0.8rem;
+        right: 20px;
+    }
+    
+    .subscription-tooltip {
+        width: calc(100% - 30px);
+        padding: 12px;
+        font-size: 0.8rem;
+        bottom: 15px;
+    }
+    
+    /* Футер */
+    .footer {
+        padding: 30px 0;
+    }
+    
+    .footer-container {
+        padding: 0 20px;
+    }
+    
+    .footer-logo {
+        font-size: 1.3rem;
+    }
+    
+    .footer-telegram {
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+    }
+}
+
+/* Для маленьких мобильных устройств */
+@media (max-width: 480px) {
+    .home-title {
+        font-size: 2.8rem;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+    }
+    
+    .btn {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+    }
+    
+    .stat-item {
+        padding: 20px;
+    }
+    
+    .stat-number {
+        font-size: 2.2rem;
+    }
+    
+    .algorithm-card-inner {
+        padding: 25px 20px;
+    }
+    
+    .algorithm-title {
+        font-size: 1.4rem;
+    }
+    
+    .subscription-card {
+        padding: 35px 20px 65px 20px;
+    }
+    
+    .subscription-title {
+        font-size: 1.8rem;
+    }
+    
+    .subscription-features li {
+        font-size: 0.85rem;
+        padding-left: 25px;
+    }
+    
+    .subscription-badge {
+        padding: 5px 12px;
+        font-size: 0.75rem;
+        top: -12px;
+        right: 15px;
+    }
+    
+    .footer-logo {
+        font-size: 1.2rem;
+    }
+    
+    .footer-telegram {
+        width: 35px;
+        height: 35px;
+        font-size: 1.3rem;
+    }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 360px) {
+    .home-title {
+        font-size: 2.3rem;
+    }
+    
+    .home-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .btn {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+        margin-bottom: 30px;
+    }
+    
+    .algorithm-title {
+        font-size: 1.3rem;
+    }
+    
+    .subscription-title {
+        font-size: 1.6rem;
+    }
+    
+    .subscription-price {
+        font-size: 1.6rem;
+    }
+    
+    .old-price {
+        font-size: 1.2rem;
+    }
+    
+    .footer-logo {
+        font-size: 1rem;
+    }
+}
+
+/* Альтернатива для горизонтальной ориентации */
+@media (max-height: 600px) and (orientation: landscape) {
+    .section {
+        padding: 60px 0 40px;
+    }
+    
+    .home-section {
+        padding-top: 80px;
+    }
+    
+    .home-container {
+        gap: 30px;
+    }
+    
+    .home-image-wrapper {
+        max-width: 400px;
+    }
+    
+    .algorithm-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .algorithm-card {
+        max-width: 100%;
+    }
+    
+    .stat-item {
+        padding: 15px;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+}
+
+/* Убираем свечения на мобилках для производительности */
+@media (max-width: 768px) {
+    .logo-glow {
+        display: none; /* Убираем свечение логотипа на мобилках */
+    }
+    
+    .header-glow {
+        display: none; /* Убираем свечение шапки на мобилках */
+    }
+    
+    .algorithm-glow {
+        display: none; /* Убираем свечение карточек на мобилках */
+    }
+    
+    .btn::before {
+        animation: none; /* Отключаем анимацию градиента на мобилках */
+        background: linear-gradient(90deg, #ff0066, #ff3300, #ffcc00, #00ff99, #0066ff, #9933ff, #ff00cc, #ff0066);
+    }
+    
+    .btn-gold::before {
+        background: linear-gradient(90deg, #ffd700, #ffb347, #ffd700);
+    }
+    
+    .parallax-star {
+        display: none; /* Убираем звезды на мобилках для производительности */
+    }
+}
+
+/* Оптимизация для touch-устройств */
+@media (hover: none) and (pointer: coarse) {
+    .btn:hover {
+        transform: none; /* Отключаем hover эффекты на тач-устройствах */
+    }
+    
+    .algorithm-card:hover .algorithm-card-inner {
+        transform: translateY(-5px); /* Уменьшаем эффект */
+    }
+    
+    .home-image-container:hover {
+        transform: perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1);
+    }
+    
+    .stat-item:hover {
+        transform: translateY(-2px);
+    }
+    
+    .subscription-card:hover {
+        transform: translateY(-5px);
+    }
 }
