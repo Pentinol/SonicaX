@@ -541,4 +541,232 @@ input[type=range]::-moz-range-thumb:hover {
         padding: 14px 16px;
         font-size: 0.8rem;
     }
+
+}
+
+/* ========== УЛУЧШЕННАЯ МОБИЛЬНАЯ АДАПТАЦИЯ ========== */
+@media (max-width: 480px) {
+    body {
+        padding: 8px;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+    
+    .site-title {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        margin-top: 5px;
+    }
+    
+    .ambient-card {
+        max-width: 100%;
+        padding: 16px 12px;
+        border-radius: 24px;
+        margin-bottom: 10px;
+    }
+    
+    .ambient-card::before {
+        border-radius: 26px;
+    }
+    
+    .card-content {
+        gap: 14px;
+    }
+    
+    .control-section {
+        gap: 5px;
+    }
+    
+    .section-label {
+        font-size: 0.65rem;
+    }
+    
+    /* Компактные переключатели */
+    .sliding-toggle-group {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 3px;
+        width: 100%;
+    }
+    
+    .sliding-toggle-btn {
+        padding: 6px 8px;
+        font-size: 0.6rem;
+        flex: 1 0 auto;
+        min-width: calc(25% - 6px);
+        text-align: center;
+        white-space: normal;
+        line-height: 1.2;
+    }
+    
+    /* Специально для группы с 4 кнопками */
+    .mood-group .sliding-toggle-btn,
+    .bass-group .sliding-toggle-btn {
+        min-width: calc(25% - 4px);
+        padding: 6px 4px;
+        font-size: 0.55rem;
+    }
+    
+    /* Для группы с 2 кнопками */
+    .mode-group .sliding-toggle-btn,
+    .version-group .sliding-toggle-btn {
+        min-width: calc(50% - 6px);
+    }
+    
+    /* Корректировка индикатора для мобильных */
+    .sliding-indicator {
+        display: none; /* Отключаем скользящий индикатор на мобилках */
+    }
+    
+    /* Альтернативная подсветка активной кнопки */
+    .sliding-toggle-btn.active-version,
+    .sliding-toggle-btn.active-mood,
+    .sliding-toggle-btn.active-bass,
+    .sliding-toggle-btn.active-mode {
+        background: white;
+        color: black;
+        border-radius: 30px;
+    }
+    
+    /* Ползунки */
+    .slider-row {
+        gap: 6px;
+    }
+    
+    .slider-label {
+        font-size: 0.6rem;
+        min-width: 25px;
+    }
+    
+    input[type=range] {
+        height: 4px;
+    }
+    
+    input[type=range]::-webkit-slider-thumb {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .duration-value {
+        font-size: 0.6rem;
+        padding: 3px 6px;
+        min-width: 60px;
+    }
+    
+    /* Кнопки Generate и Clear */
+    .button-row {
+        flex-direction: row;
+        gap: 10px;
+        margin: 8px 0;
+    }
+    
+    .generate-btn,
+    .clear-btn {
+        padding: 10px 0;
+        font-size: 0.85rem;
+        flex: 1;
+    }
+    
+    /* Область экспорта */
+    .export-area {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+    }
+    
+    .export-btn {
+        padding: 6px 8px;
+        font-size: 0.6rem;
+        min-width: calc(33.333% - 4px);
+        flex: 1;
+    }
+    
+    .status-msg {
+        font-size: 0.6rem;
+        margin-left: 0;
+        width: 100%;
+        text-align: center;
+        margin-top: 6px;
+        order: 4;
+    }
+    
+    /* Уведомления для мобилок */
+    .notification-container {
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+    }
+    
+    .notification {
+        width: 100%;
+        max-width: 100%;
+        padding: 12px 15px;
+        font-size: 0.75rem;
+    }
+    
+    .notification-close {
+        font-size: 1rem;
+    }
+    
+    /* Звездочки меньше */
+    .star {
+        width: 2px;
+        height: 2px;
+    }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 360px) {
+    .mood-group .sliding-toggle-btn,
+    .bass-group .sliding-toggle-btn {
+        font-size: 0.5rem;
+        padding: 5px 2px;
+    }
+    
+    .version-group .sliding-toggle-btn,
+    .mode-group .sliding-toggle-btn {
+        font-size: 0.55rem;
+    }
+    
+    .generate-btn,
+    .clear-btn {
+        font-size: 0.8rem;
+        padding: 8px 0;
+    }
+    
+    .export-btn {
+        font-size: 0.55rem;
+        padding: 5px 4px;
+    }
+}
+
+/* Альтернатива для горизонтальной ориентации */
+@media (max-height: 600px) and (orientation: landscape) {
+    body {
+        padding: 5px;
+    }
+    
+    .site-title {
+        font-size: 1.8rem;
+        margin-bottom: 5px;
+    }
+    
+    .ambient-card {
+        padding: 12px 12px;
+    }
+    
+    .card-content {
+        gap: 8px;
+    }
+    
+    .control-section {
+        margin-bottom: 2px;
+    }
+    
+    .button-row {
+        margin: 2px 0;
+    }
 }
