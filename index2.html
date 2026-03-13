@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>SonicaX · эмбиент генератор</title>
-    <!-- шрифты: Inter и Lexend Deca -->
+    <!-- шрифты: Inter, Lexend Deca и Material Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="icon" href="SX.png" type="image/png">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500&family=Lexend+Deca:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500&family=Lexend+Deca:wght@300;400;500&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,1" rel="stylesheet">
     <!-- Tone.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <!-- Библиотека для FLAC экспорта -->
@@ -16,6 +16,32 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Кнопка истории (левый нижний угол) -->
+    <button class="history-toggle" id="historyToggleBtn" aria-label="История запросов">
+        <span class="material-symbols-outlined">history</span>
+    </button>
+
+    <!-- Боковая панель истории -->
+    <div class="history-sidebar" id="historySidebar">
+        <div class="history-sidebar-header">
+            <h3>История генераций</h3>
+            <div class="history-header-actions">
+                <button class="history-clear-btn" id="historyClearBtn" aria-label="Очистить историю" title="Очистить историю">
+                    <span class="material-symbols-outlined">delete_sweep</span>
+                </button>
+                <button class="history-close-btn" id="historyCloseBtn" aria-label="Закрыть историю">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+        </div>
+        <div class="history-sidebar-content" id="historyContent">
+            <!-- Сюда будут добавляться карточки истории -->
+        </div>
+    </div>
+
+    <!-- Аудио плеер для предпрослушивания (скрытый) -->
+    <audio id="historyAudioPlayer" style="display: none;"></audio>
+
     <h1 class="site-title">SonicaX</h1>
 
     <div class="ambient-card">
@@ -126,5 +152,4 @@
 
     <script src="script.js"></script>
 </body>
-
 </html>
