@@ -50,11 +50,560 @@
     const starfield = document.getElementById('starfield');
     const notificationContainer = document.getElementById('notificationContainer');
 
+    // Элементы для истории
+    const historyToggleBtn = document.getElementById('historyToggleBtn');
+    const historySidebar = document.getElementById('historySidebar');
+    const historyCloseBtn = document.getElementById('historyCloseBtn');
+    const historyClearBtn = document.getElementById('historyClearBtn');
+    const historyContent = document.getElementById('historyContent');
+    const historyAudioPlayer = document.getElementById('historyAudioPlayer');
+    
+    // Массив для хранения записей истории
+    let historyItems = [];
+    
+    // Текущий воспроизводящийся элемент
+    let currentlyPlayingId = null;
+    
+    // Таймеры для прогресса генерации
+    const generationProgress = {};
+
     // Индикаторы для анимации скольжения
     const versionIndicator = document.querySelector('.version-indicator');
     const moodIndicator = document.querySelector('.mood-indicator');
     const bassIndicator = document.querySelector('.bass-indicator');
     const modeIndicator = document.querySelector('.mode-indicator');
+
+    // ========== ЗАГРУЗКА И СОХРАНЕНИЕ ИСТОРИИ ==========
+    function loadHistoryFromStorage() {
+        try {
+            const saved = localStorage.getItem('sonicax_history');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                // Восстанавливаем записи
+                historyItems = parsed.map(item => ({
+                    ...item,
+                    isComplete: item.isComplete || false,
+                    progress: item.progress || 0
+                }));
+                renderHistory();
+            }
+        } catch (e) {
+            console.error('Failed to load history:', e);
+        }
+    }
+
+    function saveHistoryToStorage() {
+        try {
+            // Сохраняем все записи
+            localStorage.setItem('sonicax_history', JSON.stringify(historyItems));
+        } catch (e) {
+            console.error('Failed to save history:', e);
+            showNotification('Не удалось сохранить историю', 'warning', 3000);
+        }
+    }
+
+    // ========== ФУНКЦИИ ДЛЯ ИСТОРИИ ==========
+    // Добавление записи в историю (СРАЗУ, без ожидания)
+    function addToHistory(isComplete = true, existingItem = null) {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const dateString = now.toLocaleDateString('ru-RU');
+        
+        const moodNames = {
+            cosmic: 'космический',
+            thoughtful: 'задумчивый',
+            mysterious: 'загадочный',
+            dark: 'мрачный'
+        };
+        
+        const bassNames = {
+            min: 'минимум',
+            std: 'стандартно',
+            max: 'больше',
+            solo: 'соло'
+        };
+        
+        const spaceText = spaceDisplay.textContent;
+        
+        // Если передан существующий item (для обновления), используем его
+        if (existingItem) {
+            existingItem.isComplete = isComplete;
+            existingItem.progress = isComplete ? 100 : existingItem.progress;
+            
+            if (isComplete && generatedBlob) {
+                const reader = new FileReader();
+                reader.onloadend = function() {
+                    existingItem.audioData = reader.result;
+                    saveHistoryToStorage();
+                    renderHistory();
+                };
+                reader.readAsDataURL(generatedBlob);
+            } else {
+                saveHistoryToStorage();
+                renderHistory();
+            }
+            return;
+        }
+        
+        // Создаём новую запись
+        const historyItem = {
+            id: Date.now(),
+            version: algorithmVersion.toUpperCase(),
+            mood: moodNames[currentMood] || currentMood,
+            bass: bassNames[bassLevel] || bassLevel,
+            duration: durationSec,
+            space: spaceText,
+            mode: mode === 'advanced' ? 'продвинутый' : 'простой',
+            time: timeString,
+            date: dateString,
+            timestamp: now.getTime(),
+            isComplete: isComplete,
+            progress: isComplete ? 100 : 0,
+            settings: {
+                mood: currentMood,
+                bass: bassLevel,
+                mode: mode,
+                space: spaceValue,
+                volume: volumePercent
+            }
+        };
+        
+        if (isComplete && generatedBlob) {
+            // Если генерация завершена и есть аудио, сохраняем его
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                historyItem.audioData = reader.result;
+                historyItems.unshift(historyItem);
+                
+                // Ограничиваем до 30 записей
+                if (historyItems.length > 30) {
+                    const removed = historyItems.pop();
+                    if (currentlyPlayingId === removed.id) {
+                        historyAudioPlayer.pause();
+                        currentlyPlayingId = null;
+                    }
+                }
+                
+                saveHistoryToStorage();
+                renderHistory();
+            };
+            reader.readAsDataURL(generatedBlob);
+        } else {
+            // Для незавершённой генерации добавляем сразу
+            historyItems.unshift(historyItem);
+            
+            // Ограничиваем до 30 записей
+            if (historyItems.length > 30) {
+                const removed = historyItems.pop();
+                if (currentlyPlayingId === removed.id) {
+                    historyAudioPlayer.pause();
+                    currentlyPlayingId = null;
+                }
+            }
+            
+            saveHistoryToStorage();
+            renderHistory();
+        }
+    }
+
+    // Обновление прогресса генерации
+    function updateGenerationProgress(id, progress) {
+        const item = historyItems.find(i => i.id === id);
+        if (item && !item.isComplete) {
+            item.progress = progress;
+            saveHistoryToStorage();
+            renderHistory();
+        }
+    }
+
+    // Завершение генерации (обновление записи)
+    function completeGeneration(id) {
+        const item = historyItems.find(i => i.id === id);
+        if (item && !item.isComplete && generatedBlob) {
+            item.isComplete = true;
+            item.progress = 100;
+            
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                item.audioData = reader.result;
+                saveHistoryToStorage();
+                renderHistory();
+                
+                showNotification(
+                    'Генерация завершена, эмбиент добавлен в историю',
+                    'complete',
+                    3000
+                );
+            };
+            reader.readAsDataURL(generatedBlob);
+        }
+    }
+
+    // Продолжение генерации
+    function continueGeneration(id) {
+        const item = historyItems.find(i => i.id === id);
+        if (!item) return;
+        
+        // Восстанавливаем настройки
+        if (item.settings) {
+            currentMood = item.settings.mood;
+            moodBtns.forEach(btn => {
+                btn.classList.remove('active-mood');
+                if (btn.dataset.mood === currentMood) btn.classList.add('active-mood');
+            });
+            
+            bassLevel = item.settings.bass;
+            bassBtns.forEach(btn => {
+                btn.classList.remove('active-bass');
+                if (btn.dataset.bass === bassLevel) btn.classList.add('active-bass');
+            });
+            
+            mode = item.settings.mode;
+            modeBtns.forEach(btn => {
+                btn.classList.remove('active-mode');
+                if (btn.dataset.mode === mode) btn.classList.add('active-mode');
+            });
+            
+            spaceSlider.value = item.settings.space;
+            spaceValue = item.settings.space;
+            if (spaceValue < 10) spaceDisplay.textContent = 'камера';
+            else if (spaceValue < 25) spaceDisplay.textContent = 'комната';
+            else if (spaceValue < 45) spaceDisplay.textContent = 'зал';
+            else if (spaceValue < 70) spaceDisplay.textContent = 'собор';
+            else spaceDisplay.textContent = 'бесконечность';
+            
+            volumeSlider.value = item.settings.volume;
+            volumePercent = item.settings.volume;
+            volumeDisplay.textContent = volumePercent + '%';
+        }
+        
+        durationSec = item.duration;
+        durationSlider.value = item.duration;
+        durationDisplay.textContent = durationSec + ' сек';
+        
+        // Запускаем генерацию
+        showNotification('Продолжение генерации...', 'info', 2000);
+        
+        // Удаляем старую запись
+        deleteHistoryItem(id);
+        
+        // Запускаем новую генерацию
+        setTimeout(() => {
+            generateBtn.click();
+        }, 500);
+    }
+
+    // Удаление конкретной записи
+    function deleteHistoryItem(id) {
+        const index = historyItems.findIndex(i => i.id === id);
+        if (index !== -1) {
+            if (currentlyPlayingId === id) {
+                historyAudioPlayer.pause();
+                currentlyPlayingId = null;
+            }
+            historyItems.splice(index, 1);
+            saveHistoryToStorage();
+            renderHistory();
+            showNotification('Запись удалена', 'complete', 2000);
+        }
+    }
+
+    // Очистка истории
+    function clearHistory() {
+        if (currentlyPlayingId) {
+            historyAudioPlayer.pause();
+            currentlyPlayingId = null;
+        }
+        historyItems = [];
+        localStorage.removeItem('sonicax_history');
+        renderHistory();
+        showNotification('История очищена', 'complete', 2000);
+    }
+
+    // Воспроизведение из истории
+    function playHistoryItem(id) {
+        const item = historyItems.find(i => i.id === id);
+        if (!item || !item.audioData) return;
+        
+        if (currentlyPlayingId === id) {
+            historyAudioPlayer.pause();
+            currentlyPlayingId = null;
+            updatePlayButtons();
+            return;
+        }
+        
+        historyAudioPlayer.pause();
+        historyAudioPlayer.src = item.audioData;
+        historyAudioPlayer.play().catch(e => {
+            console.error('Playback failed:', e);
+            showNotification('Ошибка воспроизведения', 'warning', 2000);
+        });
+        
+        currentlyPlayingId = id;
+        updatePlayButtons();
+        
+        historyAudioPlayer.onended = () => {
+            currentlyPlayingId = null;
+            updatePlayButtons();
+        };
+    }
+
+    // Скачивание из истории
+    function downloadHistoryItem(id, format = 'webm') {
+        const item = historyItems.find(i => i.id === id);
+        if (!item || !item.audioData) return;
+        
+        fetch(item.audioData)
+            .then(res => res.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `sonicax_${item.version}_${item.timestamp}.${format}`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showNotification(`Скачивание начато`, 'complete', 2000);
+            })
+            .catch(e => {
+                console.error('Download failed:', e);
+                showNotification('Ошибка скачивания', 'warning', 2000);
+            });
+    }
+
+    // Обновление состояния кнопок воспроизведения
+    function updatePlayButtons() {
+        document.querySelectorAll('.history-play-btn').forEach(btn => {
+            const id = parseInt(btn.dataset.id);
+            const item = historyItems.find(i => i.id === id);
+            
+            if (currentlyPlayingId === id) {
+                btn.classList.add('playing');
+                btn.innerHTML = '<span class="material-symbols-outlined">pause</span> Пауза';
+            } else {
+                btn.classList.remove('playing');
+                btn.innerHTML = '<span class="material-symbols-outlined">play_arrow</span> Слушать';
+            }
+            
+            btn.disabled = !item || !item.audioData;
+        });
+    }
+
+    // Отрисовка истории
+    function renderHistory() {
+        if (historyItems.length === 0) {
+            historyContent.innerHTML = '<div class="history-empty">Пока нет запросов</div>';
+            return;
+        }
+        
+        let html = '';
+        historyItems.forEach(item => {
+            const incompleteClass = !item.isComplete ? 'incomplete' : '';
+            const progressBar = !item.isComplete && item.progress ? 
+                `<div class="history-progress">
+                    <div class="history-progress-bar" style="width: ${item.progress}%"></div>
+                </div>` : '';
+            
+            html += `
+                <div class="history-item ${incompleteClass}" data-id="${item.id}">
+                    <button class="history-delete-btn" data-id="${item.id}" title="Удалить">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                    <div class="history-item-header">
+                        <span class="history-item-version ${incompleteClass}">${item.version} ${!item.isComplete ? '(не завершено)' : ''}</span>
+                        <span class="history-item-mood">${item.mood}</span>
+                    </div>
+                    ${progressBar}
+                    <div class="history-item-details">
+                        <span class="history-item-detail">
+                            <span class="material-symbols-outlined">schedule</span> ${item.duration}с
+                        </span>
+                        <span class="history-item-detail">
+                            <span class="material-symbols-outlined">surround_sound</span> ${item.space}
+                        </span>
+                        <span class="history-item-detail">
+                            <span class="material-symbols-outlined">graphic_eq</span> ${item.bass}
+                        </span>
+                    </div>
+                    <div class="history-item-actions">
+                        <button class="history-play-btn" data-id="${item.id}" ${!item.audioData ? 'disabled' : ''}>
+                            <span class="material-symbols-outlined">play_arrow</span> Слушать
+                        </button>
+                        ${!item.isComplete ? 
+                            `<button class="history-continue-btn" data-id="${item.id}">
+                                <span class="material-symbols-outlined">refresh</span> Продолжить
+                            </button>` : ''
+                        }
+                        ${item.audioData ? 
+                            `<button class="history-download-btn" data-id="${item.id}">
+                                <span class="material-symbols-outlined">download</span> Скачать
+                            </button>` : ''
+                        }
+                    </div>
+                    <div class="history-item-time">${item.date} ${item.time}</div>
+                </div>
+            `;
+        });
+        
+        historyContent.innerHTML = html;
+        
+        // Добавляем обработчики для кнопок
+        document.querySelectorAll('.history-play-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.dataset.id);
+                playHistoryItem(id);
+            });
+        });
+        
+        document.querySelectorAll('.history-continue-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.dataset.id);
+                continueGeneration(id);
+            });
+        });
+        
+        document.querySelectorAll('.history-download-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.dataset.id);
+                downloadHistoryItem(id);
+            });
+        });
+        
+        document.querySelectorAll('.history-delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.dataset.id);
+                deleteHistoryItem(id);
+            });
+        });
+    }
+
+    // Управление боковой панелью
+    function openHistorySidebar() {
+        historySidebar.classList.add('open');
+    }
+
+    function closeHistorySidebar() {
+        historySidebar.classList.remove('open');
+    }
+
+    historyToggleBtn.addEventListener('click', openHistorySidebar);
+    historyCloseBtn.addEventListener('click', closeHistorySidebar);
+    historyClearBtn.addEventListener('click', clearHistory);
+
+    // Закрытие по клику вне панели
+    document.addEventListener('click', (e) => {
+        if (historySidebar.classList.contains('open') && 
+            !historySidebar.contains(e.target) && 
+            !historyToggleBtn.contains(e.target)) {
+            closeHistorySidebar();
+        }
+    });
+
+    // ========== ФУНКЦИИ ДЛЯ КОНВЕРТАЦИИ ==========
+    async function convertToFlac(audioBlob) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const arrayBuffer = await audioBlob.arrayBuffer();
+                
+                const audioContext = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(2, 44100 * 10, 44100);
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer.slice(0));
+                
+                const samples = audioBuffer.length;
+                const channels = audioBuffer.numberOfChannels;
+                
+                const interleaved = new Int16Array(samples * channels);
+                
+                for (let channel = 0; channel < channels; channel++) {
+                    const channelData = audioBuffer.getChannelData(channel);
+                    for (let i = 0; i < samples; i++) {
+                        const sample = Math.max(-1, Math.min(1, channelData[i]));
+                        interleaved[i * channels + channel] = sample < 0 ? sample * 32768 : sample * 32767;
+                    }
+                }
+                
+                if (typeof FLAC === 'undefined' && typeof Flac === 'undefined' && typeof flac === 'undefined') {
+                    console.warn('FLAC library not found, using WAV fallback');
+                    const wavBlob = await convertToWav(audioBuffer);
+                    resolve(wavBlob);
+                    return;
+                }
+                
+                const FlacEncoder = FLAC || Flac || flac;
+                
+                const encoder = new FlacEncoder({
+                    channels: channels,
+                    sampleRate: 44100,
+                    compression: 5,
+                    bitsPerSample: 16
+                });
+                
+                const flacBuffer = encoder.encode(interleaved);
+                
+                const flacBlob = new Blob([flacBuffer], { type: 'audio/flac' });
+                resolve(flacBlob);
+                
+            } catch (error) {
+                console.error('FLAC conversion error:', error);
+                showNotification('Ошибка конвертации в FLAC, используется оригинальный формат', 'warning', 4000);
+                resolve(audioBlob);
+            }
+        });
+    }
+
+    async function convertToWav(audioBuffer) {
+        const samples = audioBuffer.length;
+        const channels = audioBuffer.numberOfChannels;
+        const sampleRate = audioBuffer.sampleRate;
+        
+        const interleaved = new Int16Array(samples * channels);
+        
+        for (let channel = 0; channel < channels; channel++) {
+            const channelData = audioBuffer.getChannelData(channel);
+            for (let i = 0; i < samples; i++) {
+                const sample = Math.max(-1, Math.min(1, channelData[i]));
+                interleaved[i * channels + channel] = sample < 0 ? sample * 32768 : sample * 32767;
+            }
+        }
+        
+        const wavHeader = createWavHeader(samples, channels, sampleRate, interleaved.byteLength);
+        
+        const wavBlob = new Blob([wavHeader, interleaved], { type: 'audio/wav' });
+        return wavBlob;
+    }
+
+    function createWavHeader(samples, channels, sampleRate, dataSize) {
+        const header = new ArrayBuffer(44);
+        const view = new DataView(header);
+        
+        writeString(view, 0, 'RIFF');
+        view.setUint32(4, 36 + dataSize, true);
+        writeString(view, 8, 'WAVE');
+        
+        writeString(view, 12, 'fmt ');
+        view.setUint32(16, 16, true);
+        view.setUint16(20, 1, true);
+        view.setUint16(22, channels, true);
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * channels * 2, true);
+        view.setUint16(32, channels * 2, true);
+        view.setUint16(34, 16, true);
+        
+        writeString(view, 36, 'data');
+        view.setUint32(40, dataSize, true);
+        
+        return header;
+    }
+
+    function writeString(view, offset, string) {
+        for (let i = 0; i < string.length; i++) {
+            view.setUint8(offset + i, string.charCodeAt(i));
+        }
+    }
 
     // Функция обновления позиции индикатора и цветов
     function updateIndicator(buttons, indicator, activeClass) {
@@ -235,7 +784,6 @@
         const notification = document.createElement('div');
         notification.className = 'notification';
         
-        // Добавляем соответствующий градиент
         if (type === 'generate') {
             notification.classList.add('gradient-green');
         } else if (type === 'complete') {
@@ -246,7 +794,6 @@
             notification.classList.add('gradient-purple');
         }
         
-        // Создаем содержимое уведомления
         const contentDiv = document.createElement('div');
         contentDiv.className = 'notification-content';
         
@@ -275,7 +822,6 @@
         
         notificationContainer.appendChild(notification);
         
-        // Автоматическое скрытие
         setTimeout(() => {
             if (notification.parentNode) {
                 notification.classList.add('fade-out');
@@ -289,7 +835,6 @@
     }
 
     // ========== ПРИВЕТСТВЕННОЕ УВЕДОМЛЕНИЕ ==========
-    // Показываем при загрузке страницы
     window.addEventListener('load', () => {
         setTimeout(() => {
             showNotification(
@@ -297,129 +842,11 @@
                 'welcome',
                 8000
             );
-        }, 500); // Небольшая задержка, чтобы уведомление появилось после полной загрузки
+        }, 500);
+        
+        // Загружаем историю
+        loadHistoryFromStorage();
     });
-
-    // ========== ФУНКЦИИ ДЛЯ КОНВЕРТАЦИИ В FLAC ==========
-    async function convertToFlac(audioBlob) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                // Декодируем аудио в PCM
-                const arrayBuffer = await audioBlob.arrayBuffer();
-                
-                // Создаем OfflineAudioContext для декодирования
-                const audioContext = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(2, 44100 * 10, 44100);
-                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer.slice(0));
-                
-                // Получаем PCM данные
-                const samples = audioBuffer.length;
-                const channels = audioBuffer.numberOfChannels;
-                
-                // Создаем interleaved Int16 массив
-                const interleaved = new Int16Array(samples * channels);
-                
-                for (let channel = 0; channel < channels; channel++) {
-                    const channelData = audioBuffer.getChannelData(channel);
-                    for (let i = 0; i < samples; i++) {
-                        // Float32 (-1 to 1) to Int16 (-32768 to 32767)
-                        const sample = Math.max(-1, Math.min(1, channelData[i]));
-                        interleaved[i * channels + channel] = sample < 0 ? sample * 32768 : sample * 32767;
-                    }
-                }
-                
-                // Проверяем доступность библиотеки FLAC
-                if (typeof FLAC === 'undefined' && typeof Flac === 'undefined' && typeof flac === 'undefined') {
-                    console.warn('FLAC library not found, using WAV fallback');
-                    // Если библиотека не загружена, возвращаем исходный blob
-                    // Но конвертируем в WAV для совместимости
-                    const wavBlob = await convertToWav(audioBuffer);
-                    resolve(wavBlob);
-                    return;
-                }
-                
-                // Используем доступную FLAC библиотеку
-                const FlacEncoder = FLAC || Flac || flac;
-                
-                // Создаем FLAC энкодер с правильными параметрами
-                const encoder = new FlacEncoder({
-                    channels: channels,
-                    sampleRate: 44100,
-                    compression: 5,
-                    bitsPerSample: 16
-                });
-                
-                // Кодируем в FLAC
-                const flacBuffer = encoder.encode(interleaved);
-                
-                // Создаем Blob
-                const flacBlob = new Blob([flacBuffer], { type: 'audio/flac' });
-                resolve(flacBlob);
-                
-            } catch (error) {
-                console.error('FLAC conversion error:', error);
-                // В случае ошибки возвращаем исходный blob и показываем предупреждение
-                showNotification('Ошибка конвертации в FLAC, используется оригинальный формат', 'warning', 4000);
-                resolve(audioBlob);
-            }
-        });
-    }
-
-    // Вспомогательная функция для конвертации в WAV (как запасной вариант)
-    async function convertToWav(audioBuffer) {
-        const samples = audioBuffer.length;
-        const channels = audioBuffer.numberOfChannels;
-        const sampleRate = audioBuffer.sampleRate;
-        
-        // Создаем interleaved Int16 массив
-        const interleaved = new Int16Array(samples * channels);
-        
-        for (let channel = 0; channel < channels; channel++) {
-            const channelData = audioBuffer.getChannelData(channel);
-            for (let i = 0; i < samples; i++) {
-                const sample = Math.max(-1, Math.min(1, channelData[i]));
-                interleaved[i * channels + channel] = sample < 0 ? sample * 32768 : sample * 32767;
-            }
-        }
-        
-        // Создаем WAV заголовок
-        const wavHeader = createWavHeader(samples, channels, sampleRate, interleaved.byteLength);
-        
-        // Объединяем заголовок и данные
-        const wavBlob = new Blob([wavHeader, interleaved], { type: 'audio/wav' });
-        return wavBlob;
-    }
-
-    function createWavHeader(samples, channels, sampleRate, dataSize) {
-        const header = new ArrayBuffer(44);
-        const view = new DataView(header);
-        
-        // RIFF header
-        writeString(view, 0, 'RIFF');
-        view.setUint32(4, 36 + dataSize, true);
-        writeString(view, 8, 'WAVE');
-        
-        // fmt chunk
-        writeString(view, 12, 'fmt ');
-        view.setUint32(16, 16, true); // fmt chunk size
-        view.setUint16(20, 1, true); // PCM format
-        view.setUint16(22, channels, true);
-        view.setUint32(24, sampleRate, true);
-        view.setUint32(28, sampleRate * channels * 2, true); // byte rate
-        view.setUint16(32, channels * 2, true); // block align
-        view.setUint16(34, 16, true); // bits per sample
-        
-        // data chunk
-        writeString(view, 36, 'data');
-        view.setUint32(40, dataSize, true);
-        
-        return header;
-    }
-
-    function writeString(view, offset, string) {
-        for (let i = 0; i < string.length; i++) {
-            view.setUint8(offset + i, string.charCodeAt(i));
-        }
-    }
 
     // Создание эффекта объёма
     function createPowerfulReverb() {
@@ -429,30 +856,13 @@
         const spaceFactor = spaceValue / 100;
         
         const delay1 = audioContext.createDelay(2.0);
-        delay1.type = 'delayNode1';
-        
         const delay2 = audioContext.createDelay(2.0);
-        delay2.type = 'delayNode2';
-        
         const feedback1 = audioContext.createGain();
-        feedback1.type = 'feedbackNode1';
-        
         const feedback2 = audioContext.createGain();
-        feedback2.type = 'feedbackNode2';
-        
         const wetGain = audioContext.createGain();
-        wetGain.type = 'wetNode';
-        
         const filter1 = audioContext.createBiquadFilter();
-        filter1.type = 'lowpass';
-        filter1.type = 'reverbFilter1';
-        
         const filter2 = audioContext.createBiquadFilter();
-        filter2.type = 'lowpass';
-        filter2.type = 'reverbFilter2';
-        
         const diffuser = audioContext.createDelay(0.1);
-        diffuser.type = 'diffuser';
         
         reverbNodes = {
             delay1, delay2,
@@ -1208,11 +1618,11 @@
         // Устанавливаем флаг генерации
         isGenerating = true;
         
-        // Показываем уведомление о начале генерации (10 секунд)
+        // Показываем уведомление о начале генерации
         showNotification(
-            'Процесс генерации начался, для успешного экспорта дождитесь конца генерации, для этого возможно придётся дождаться полного проигрывания эмбиента.',
+            'Процесс генерации начался...',
             'generate',
-            10000
+            5000
         );
         
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -1222,19 +1632,36 @@
         recordedChunks = [];
         mediaRecorder = new MediaRecorder(dest.stream);
         mediaRecorder.ondataavailable = (e) => recordedChunks.push(e.data);
+        
+        // Создаём запись в истории ДО начала генерации
+        const generationId = Date.now();
+        
         mediaRecorder.onstop = () => {
             generatedBlob = new Blob(recordedChunks, { type: 'audio/webm' });
             statusMsg.textContent = `версия ${algorithmVersion} · завершено`;
             
-            // Показываем уведомление о завершении генерации
             showNotification(
                 'Генерация завершена, эмбиент готов к экспорту.',
                 'complete',
                 5000
             );
             
-            // Сбрасываем флаг генерации
             isGenerating = false;
+            
+            // Обновляем существующую запись, а не создаём новую
+            const existingItem = historyItems.find(i => i.id === generationId);
+            if (existingItem) {
+                existingItem.isComplete = true;
+                existingItem.progress = 100;
+                
+                const reader = new FileReader();
+                reader.onloadend = function() {
+                    existingItem.audioData = reader.result;
+                    saveHistoryToStorage();
+                    renderHistory();
+                };
+                reader.readAsDataURL(generatedBlob);
+            }
         };
         
         mediaRecorder.start();
@@ -1246,6 +1673,64 @@
         masterGain.connect(dest);
         masterGain.connect(audioContext.destination);
         
+        // Добавляем запись в историю СРАЗУ (незавершённую)
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const dateString = now.toLocaleDateString('ru-RU');
+        
+        const moodNames = {
+            cosmic: 'космический',
+            thoughtful: 'задумчивый',
+            mysterious: 'загадочный',
+            dark: 'мрачный'
+        };
+        
+        const bassNames = {
+            min: 'минимум',
+            std: 'стандартно',
+            max: 'больше',
+            solo: 'соло'
+        };
+        
+        const spaceText = spaceDisplay.textContent;
+        
+        const historyItem = {
+            id: generationId,
+            version: algorithmVersion.toUpperCase(),
+            mood: moodNames[currentMood] || currentMood,
+            bass: bassNames[bassLevel] || bassLevel,
+            duration: durationSec,
+            space: spaceText,
+            mode: mode === 'advanced' ? 'продвинутый' : 'простой',
+            time: timeString,
+            date: dateString,
+            timestamp: now.getTime(),
+            isComplete: false,
+            progress: 0,
+            settings: {
+                mood: currentMood,
+                bass: bassLevel,
+                mode: mode,
+                space: spaceValue,
+                volume: volumePercent
+            }
+        };
+        
+        historyItems.unshift(historyItem);
+        
+        // Ограничиваем до 30 записей
+        if (historyItems.length > 30) {
+            const removed = historyItems.pop();
+            if (currentlyPlayingId === removed.id) {
+                historyAudioPlayer.pause();
+                currentlyPlayingId = null;
+            }
+        }
+        
+        saveHistoryToStorage();
+        renderHistory();
+        
+        // Запускаем алгоритм генерации
         if (algorithmVersion === 'v1') {
             generateV1();
         } else if (algorithmVersion === 'v2') {
@@ -1254,7 +1739,22 @@
             generateV3();
         }
         
+        // Обновляем прогресс
+        const progressInterval = setInterval(() => {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                const elapsed = Date.now() - now.getTime();
+                const progress = Math.min(95, Math.floor((elapsed / (durationSec * 1000)) * 100));
+                
+                const item = historyItems.find(i => i.id === generationId);
+                if (item && !item.isComplete) {
+                    item.progress = progress;
+                    renderHistory();
+                }
+            }
+        }, 500);
+        
         setTimeout(() => {
+            clearInterval(progressInterval);
             if (!exportEnabled) {
                 exportMp3.disabled = false;
                 exportWav.disabled = false;
@@ -1265,6 +1765,7 @@
         }, 100);
         
         scheduledStopTimeout = setTimeout(() => {
+            clearInterval(progressInterval);
             if (mediaRecorder && mediaRecorder.state === 'recording') {
                 mediaRecorder.stop();
             }
@@ -1291,7 +1792,6 @@
         triggerBorderAnimation('clear');
     });
 
-    // Перехватываем клики по кнопкам экспорта для показа предупреждения
     exportMp3.addEventListener('click', (e) => {
         if (isGenerating) {
             e.preventDefault();
@@ -1340,12 +1840,10 @@
         let blobToDownload = generatedBlob;
         let fileExtension = extension;
         
-        // Для FLAC конвертируем
         if (extension === 'flac') {
             showNotification('Конвертация в FLAC...', 'info', 2000);
             try {
                 blobToDownload = await convertToFlac(generatedBlob);
-                // Убеждаемся, что тип правильный
                 if (blobToDownload.type !== 'audio/flac') {
                     blobToDownload = new Blob([await blobToDownload.arrayBuffer()], { type: 'audio/flac' });
                 }
@@ -1353,7 +1851,6 @@
             } catch (error) {
                 console.error('FLAC conversion failed:', error);
                 showNotification('Ошибка конвертации в FLAC, используется WAV', 'warning', 4000);
-                // Пробуем конвертировать в WAV как запасной вариант
                 try {
                     const arrayBuffer = await generatedBlob.arrayBuffer();
                     const audioCtx = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(2, 44100 * 10, 44100);
@@ -1404,7 +1901,11 @@
             clearTimeout(scheduledStopTimeout);
         }
         
-        // Сбрасываем флаг генерации
+        if (currentlyPlayingId) {
+            historyAudioPlayer.pause();
+            currentlyPlayingId = null;
+        }
+        
         isGenerating = false;
         
         moodBtns.forEach(btn => {
@@ -1437,7 +1938,6 @@
         });
         bassLevel = 'std';
         
-        // Сброс версии на V3
         versionBtns.forEach(btn => {
             btn.classList.remove('active-version');
             if (btn.dataset.version === 'v3') btn.classList.add('active-version');
