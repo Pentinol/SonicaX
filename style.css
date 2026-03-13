@@ -17,6 +17,392 @@ body {
     position: relative;
 }
 
+/* ===== КНОПКА ИСТОРИИ (левый нижний угол) ===== */
+.history-toggle {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #2a2a2a;
+    border: 1px solid #4a4a4a;
+    color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    padding: 0;
+}
+
+.history-toggle:hover {
+    background-color: #3a3a3a;
+    transform: translateY(-2px);
+    border-color: #6a6a6a;
+    color: white;
+}
+
+.history-toggle:active {
+    transform: scale(0.95);
+}
+
+.history-toggle .material-symbols-outlined {
+    font-size: 24px;
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ===== БОКОВАЯ ПАНЕЛЬ ИСТОРИИ ===== */
+.history-sidebar {
+    position: fixed;
+    top: 0;
+    left: -340px;
+    width: 340px;
+    height: 100vh;
+    background-color: #1a1a1a;
+    border-right: 1px solid #3a3a3a;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.7);
+    z-index: 1000;
+    transition: left 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    color: #e0e0e0;
+    font-family: 'Inter', sans-serif;
+}
+
+.history-sidebar.open {
+    left: 0;
+}
+
+.history-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 16px;
+    border-bottom: 1px solid #333;
+    background-color: #141414;
+}
+
+.history-sidebar-header h3 {
+    font-size: 1rem;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    color: #ccc;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.history-header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.history-clear-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.history-clear-btn:hover {
+    background-color: #ff3333;
+    color: white;
+}
+
+.history-close-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.history-close-btn:hover {
+    background-color: #333;
+    color: white;
+}
+
+.history-clear-btn .material-symbols-outlined,
+.history-close-btn .material-symbols-outlined {
+    font-size: 20px;
+}
+
+/* Кастомный скроллбар */
+.history-sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: #555 #2a2a2a;
+}
+
+.history-sidebar-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.history-sidebar-content::-webkit-scrollbar-track {
+    background: #2a2a2a;
+    border-radius: 10px;
+}
+
+.history-sidebar-content::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 10px;
+    transition: background 0.2s;
+}
+
+.history-sidebar-content::-webkit-scrollbar-thumb:hover {
+    background: #777;
+}
+
+/* Карточка элемента истории */
+.history-item {
+    background-color: #242424;
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid #3a3a3a;
+    transition: all 0.2s;
+    animation: fadeIn 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+}
+
+.history-item:hover {
+    background-color: #2c2c2c;
+    border-color: #555;
+}
+
+.history-item.incomplete {
+    border-left: 3px solid #ff9900;
+    background-color: #2a2a2a;
+}
+
+.history-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7rem;
+    color: #aaa;
+}
+
+.history-item-version {
+    background-color: #333;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 400;
+    color: white;
+}
+
+.history-item-version.incomplete {
+    background-color: #ff9900;
+    color: #000;
+}
+
+.history-item-mood {
+    color: #ccc;
+}
+
+.history-item-details {
+    display: flex;
+    gap: 12px;
+    font-size: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.history-item-detail {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #ddd;
+}
+
+.history-item-detail .material-symbols-outlined {
+    font-size: 14px;
+    color: #888;
+}
+
+.history-item-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.history-play-btn {
+    background: #333;
+    border: 1px solid #555;
+    color: #ddd;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+    flex: 1;
+    justify-content: center;
+    min-width: 70px;
+}
+
+.history-play-btn:hover:not(:disabled) {
+    background: #444;
+    border-color: #777;
+    color: white;
+}
+
+.history-play-btn.playing {
+    background: #00cc66;
+    border-color: #00ff99;
+    color: black;
+}
+
+.history-play-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.history-play-btn .material-symbols-outlined {
+    font-size: 14px;
+}
+
+.history-continue-btn {
+    background: #ff9900;
+    border: 1px solid #ffaa22;
+    color: #000;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+    flex: 1;
+    justify-content: center;
+    min-width: 70px;
+    font-weight: 500;
+}
+
+.history-continue-btn:hover {
+    background: #ffaa22;
+    border-color: #ffbb44;
+    transform: translateY(-1px);
+}
+
+.history-continue-btn .material-symbols-outlined {
+    font-size: 14px;
+}
+
+.history-download-btn {
+    background: #333;
+    border: 1px solid #555;
+    color: #ddd;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+    flex: 1;
+    justify-content: center;
+    min-width: 70px;
+}
+
+.history-download-btn:hover {
+    background: #444;
+    border-color: #777;
+    color: white;
+}
+
+.history-download-btn .material-symbols-outlined {
+    font-size: 14px;
+}
+
+.history-delete-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    transition: all 0.2s;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+}
+
+.history-delete-btn:hover {
+    background-color: #ff3333;
+    color: white;
+}
+
+.history-delete-btn .material-symbols-outlined {
+    font-size: 16px;
+}
+
+.history-item-time {
+    font-size: 0.6rem;
+    color: #777;
+    text-align: right;
+    margin-top: 4px;
+}
+
+.history-empty {
+    text-align: center;
+    color: #666;
+    font-size: 0.8rem;
+    padding: 30px 0;
+    font-style: normal;
+}
+
+.history-progress {
+    height: 2px;
+    background-color: #333;
+    border-radius: 2px;
+    margin: 4px 0;
+    overflow: hidden;
+}
+
+.history-progress-bar {
+    height: 100%;
+    background-color: #ff9900;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Остальные стили (без изменений) */
 .site-title {
     font-family: 'Lexend Deca', sans-serif;
     font-size: clamp(1.8rem, 7vw, 2.8rem);
@@ -494,6 +880,7 @@ input[type=range]::-moz-range-thumb:hover {
     }
 }
 
+/* ========== МОБИЛЬНАЯ АДАПТАЦИЯ ========== */
 @media (max-width: 650px) {
     .ambient-card {
         padding: 16px 14px;
@@ -541,10 +928,13 @@ input[type=range]::-moz-range-thumb:hover {
         padding: 14px 16px;
         font-size: 0.8rem;
     }
-
+    
+    .history-sidebar {
+        width: 300px;
+        left: -300px;
+    }
 }
 
-/* ========== УЛУЧШЕННАЯ МОБИЛЬНАЯ АДАПТАЦИЯ ========== */
 @media (max-width: 480px) {
     body {
         padding: 8px;
@@ -583,7 +973,6 @@ input[type=range]::-moz-range-thumb:hover {
         font-size: 0.65rem;
     }
     
-    /* Компактные переключатели */
     .sliding-toggle-group {
         flex-wrap: wrap;
         height: auto;
@@ -601,7 +990,6 @@ input[type=range]::-moz-range-thumb:hover {
         line-height: 1.2;
     }
     
-    /* Специально для группы с 4 кнопками */
     .mood-group .sliding-toggle-btn,
     .bass-group .sliding-toggle-btn {
         min-width: calc(25% - 4px);
@@ -609,18 +997,15 @@ input[type=range]::-moz-range-thumb:hover {
         font-size: 0.55rem;
     }
     
-    /* Для группы с 2 кнопками */
     .mode-group .sliding-toggle-btn,
     .version-group .sliding-toggle-btn {
         min-width: calc(50% - 6px);
     }
     
-    /* Корректировка индикатора для мобильных */
     .sliding-indicator {
-        display: none; /* Отключаем скользящий индикатор на мобилках */
+        display: none;
     }
     
-    /* Альтернативная подсветка активной кнопки */
     .sliding-toggle-btn.active-version,
     .sliding-toggle-btn.active-mood,
     .sliding-toggle-btn.active-bass,
@@ -630,7 +1015,6 @@ input[type=range]::-moz-range-thumb:hover {
         border-radius: 30px;
     }
     
-    /* Ползунки */
     .slider-row {
         gap: 6px;
     }
@@ -655,7 +1039,6 @@ input[type=range]::-moz-range-thumb:hover {
         min-width: 60px;
     }
     
-    /* Кнопки Generate и Clear */
     .button-row {
         flex-direction: row;
         gap: 10px;
@@ -669,7 +1052,6 @@ input[type=range]::-moz-range-thumb:hover {
         flex: 1;
     }
     
-    /* Область экспорта */
     .export-area {
         flex-direction: row;
         flex-wrap: wrap;
@@ -693,7 +1075,6 @@ input[type=range]::-moz-range-thumb:hover {
         order: 4;
     }
     
-    /* Уведомления для мобилок */
     .notification-container {
         bottom: 10px;
         right: 10px;
@@ -707,18 +1088,34 @@ input[type=range]::-moz-range-thumb:hover {
         font-size: 0.75rem;
     }
     
-    .notification-close {
-        font-size: 1rem;
-    }
-    
-    /* Звездочки меньше */
     .star {
         width: 2px;
         height: 2px;
     }
+    
+    .history-toggle {
+        bottom: 15px;
+        left: 15px;
+        width: 42px;
+        height: 42px;
+    }
+    
+    .history-sidebar {
+        width: 280px;
+        left: -280px;
+    }
+    
+    .history-item-actions {
+        flex-direction: column;
+    }
+    
+    .history-play-btn,
+    .history-continue-btn,
+    .history-download-btn {
+        width: 100%;
+    }
 }
 
-/* Для очень маленьких экранов */
 @media (max-width: 360px) {
     .mood-group .sliding-toggle-btn,
     .bass-group .sliding-toggle-btn {
@@ -743,7 +1140,6 @@ input[type=range]::-moz-range-thumb:hover {
     }
 }
 
-/* Альтернатива для горизонтальной ориентации */
 @media (max-height: 600px) and (orientation: landscape) {
     body {
         padding: 5px;
