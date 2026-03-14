@@ -633,7 +633,7 @@
     window.addEventListener('load', initIndicators);
     window.addEventListener('resize', initIndicators);
 
-    // Ползунок длительности
+    // Ползунок длительности (обновлено: макс 360)
     durationSlider.addEventListener('input', (e) => {
         durationSec = parseInt(e.target.value);
         durationDisplay.textContent = durationSec + ' сек';
