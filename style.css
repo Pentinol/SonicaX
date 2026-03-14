@@ -402,7 +402,7 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Остальные стили (без изменений) */
+/* Остальные стили */
 .site-title {
     font-family: 'Lexend Deca', sans-serif;
     font-size: clamp(1.8rem, 7vw, 2.8rem);
