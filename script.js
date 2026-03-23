@@ -907,6 +907,19 @@
         return { input: diffuser, output: wetGain };
     }
 
+    // Вспомогательная функция для адаптивной атаки
+    function getAdaptiveAttack(baseMin, baseMax, durationSec) {
+        // Если длительность больше 120 секунд, уменьшаем максимальное время атаки,
+        // чтобы избежать слишком долгого вступления
+        if (durationSec > 120) {
+            const factor = Math.min(1, 120 / durationSec);
+            const maxAdjusted = baseMax * factor;
+            const minAdjusted = baseMin * factor;
+            return minAdjusted + Math.random() * (maxAdjusted - minAdjusted);
+        }
+        return baseMin + Math.random() * (baseMax - baseMin);
+    }
+
     // ==================== АЛГОРИТМ V1 ====================
     function generateV1() {
         const scale = [0, 2, 4, 7, 9, 12, 14, 16];
@@ -1036,6 +1049,11 @@
 
         const params = moodParams[currentMood];
         
+        // Адаптируем время атаки в зависимости от длительности
+        const attackMin = params.attackRange[0];
+        const attackMax = params.attackRange[1];
+        const adaptiveAttack = getAdaptiveAttack(attackMin, attackMax, totalDur);
+        
         const scales = {
             cosmic: [[0, 2, 4, 7, 9, 12, 14, 16]],
             thoughtful: [[0, 2, 3, 5, 7, 8, 10, 12]],
@@ -1114,11 +1132,10 @@
             
             reverb.output.connect(masterGain);
             
-            const attack = params.attackRange[0] + Math.random() * (params.attackRange[1] - params.attackRange[0]);
             const release = params.releaseRange[0] + Math.random() * (params.releaseRange[1] - params.releaseRange[0]);
             
             gainNode.gain.setValueAtTime(0, ev.startTime);
-            gainNode.gain.linearRampToValueAtTime(ev.gain, ev.startTime + attack);
+            gainNode.gain.linearRampToValueAtTime(ev.gain, ev.startTime + adaptiveAttack);
             gainNode.gain.setValueAtTime(ev.gain, ev.startTime + ev.duration - release);
             gainNode.gain.linearRampToValueAtTime(0, ev.startTime + ev.duration);
             
@@ -1230,8 +1247,11 @@
         const masterEnvelope = audioContext.createGain();
         masterEnvelope.connect(masterGain);
         
+        // Адаптируем время атаки мастер-огибающей
+        const masterAttack = totalDur > 120 ? Math.min(2.5, 1.0 + (totalDur - 120) / 60) : 1.0;
+        
         masterEnvelope.gain.setValueAtTime(0, now);
-        masterEnvelope.gain.linearRampToValueAtTime(1, now + 1.0);
+        masterEnvelope.gain.linearRampToValueAtTime(1, now + masterAttack);
         masterEnvelope.gain.setValueAtTime(1, now + totalDur - 5.0);
         masterEnvelope.gain.linearRampToValueAtTime(0, now + totalDur);
         
@@ -1330,6 +1350,11 @@
         const params = moodParams[currentMood];
         const scale = params.scales[Math.floor(Math.random() * params.scales.length)];
         const baseFreq = params.baseFreq;
+        
+        // Адаптируем время атаки для эмбиент-слоёв
+        const attackMin = params.attackRange[0];
+        const attackMax = params.attackRange[1];
+        const adaptiveAttack = getAdaptiveAttack(attackMin, attackMax, totalDur);
         
         // Эмбиент слои
         const notesPerLayer = mode === 'advanced' ? 14 : 10;
@@ -1479,11 +1504,10 @@
             reverbSend.connect(reverb.input);
             reverb.output.connect(masterEnvelope);
             
-            const attack = params.attackRange[0] + Math.random() * (params.attackRange[1] - params.attackRange[0]);
             const release = params.releaseRange[0] + Math.random() * (params.releaseRange[1] - params.releaseRange[0]);
             
             gainNode.gain.setValueAtTime(0, ev.startTime);
-            gainNode.gain.linearRampToValueAtTime(ev.gain, ev.startTime + attack);
+            gainNode.gain.linearRampToValueAtTime(ev.gain, ev.startTime + adaptiveAttack);
             gainNode.gain.setValueAtTime(ev.gain, ev.startTime + ev.duration - release);
             gainNode.gain.linearRampToValueAtTime(0, ev.startTime + ev.duration);
             
